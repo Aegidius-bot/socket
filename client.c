@@ -7,7 +7,7 @@
 #include<arpa/inet.h>
 #define SOCKET_PATH "/tmp/mysocket"
 
-int main(){
+int main(int argc, char** argv){
     int client_fd, status;
     struct sockaddr_un serv_addr;
     char hello[] = "Hello from client\n";
@@ -29,12 +29,14 @@ int main(){
         exit(1);
     }
 
-    commands = fopen("input.txt", "r");
+    commands = fopen(argv[1], "r");
 
    while(fgets(line, sizeof(line), commands) != NULL){
         
         send(client_fd, line, strlen(line), 0);
         read(client_fd, buffer, 100 - 1);
+
+        if(strcmp("kill", strtok(line, " ")) == 0)break;
         printf("%s", buffer);
         
     }
