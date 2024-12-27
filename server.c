@@ -5,6 +5,7 @@
 #include<sys/socket.h>
 #include<sys/un.h>
 #include<unistd.h>
+#include<math.h>
 #define SOCKET_PATH "/tmp/mysocket"
 
 int main(){
@@ -13,7 +14,11 @@ int main(){
 	ssize_t valread;
 	int opt = 1;
 	char buffer[1024];
-	char hello[] = "Hello from server";
+	char hello[] = "Hello\n";
+	char* tok;
+	char* arg1;
+	char* arg2;
+	char* ans = (char*)malloc(sizeof(char) * 50);
 
 	if((server_fd = socket(AF_LOCAL, SOCK_STREAM, 0)) < 0){
 		perror("Socket fail");
@@ -45,13 +50,42 @@ int main(){
 		perror("Accept");
 		exit(1);
 	}
+	
+	while(1){
+		valread = read(new_socket, buffer, 1024 - 1);
+		
+		//Parse the command from the client
+		
+		tok = strtok(buffer, " ");
+		arg1 = strtok(NULL, " ");
+		arg2 = strtok(NULL," ");
+		
+		printf("\n**** %s ****\n", tok);
 
-	valread = read(new_socket, buffer, 1024 - 1);
-	printf("%s", buffer);
+		if(strcmp(tok,"kill") == 0){
+			sprintf(ans, "%s", "\0");
+			send(new_socket, ans, strlen(ans), 0);
+			break;
+		}else if(strcmp(tok,"add") == 0){
+			sprintf(ans, "%d\n", atoi(arg1) + atoi(arg2));
+			send(new_socket, ans, strlen(ans), 0);
+			memset(ans, 0, 50);
+		}else if(strcmp(tok,"abs") == 0){
 
-	send(new_socket, hello, strlen(hello), 0);
-	printf("Hello message sent.\n");
+			sprintf(ans, "%d\n", abs(atoi(arg1)));
+			send(new_socket, ans, strlen(ans), 0);
+			memset(ans, 0, 50);
+		}else if(strcmp(tok, "mul") == 0){
 
+			sprintf(ans, "%d\n", atoi(arg1) * atoi(arg2));
+			send(new_socket, ans, strlen(ans), 0);
+			memset(ans, 0, 50);
+		}else{
+			send(new_socket, hello, strlen(hello), 0);
+		}
+	}
+	
+	free(ans);
 	close(new_socket);
 	close(server_fd);
 	unlink(SOCKET_PATH);

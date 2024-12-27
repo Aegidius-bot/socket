@@ -8,10 +8,12 @@
 #define SOCKET_PATH "/tmp/mysocket"
 
 int main(){
-    int client_fd, valread, status;
+    int client_fd, status;
     struct sockaddr_un serv_addr;
     char hello[] = "Hello from client\n";
-    char buffer[1024];
+    char* buffer = (char*)malloc(sizeof(char)*100);
+    char line[100];
+    FILE* commands;
 
     if((client_fd = socket(AF_LOCAL, SOCK_STREAM, 0)) < 0){
         perror("socket");
@@ -27,12 +29,18 @@ int main(){
         exit(1);
     }
 
-    send(client_fd, hello, strlen(hello), 0);
-    printf("Hello message sent.\n");
+    commands = fopen("input.txt", "r");
 
-    valread = read(client_fd, buffer, 1024 - 1);
-    printf("%s\n", buffer);
-
+   while(fgets(line, sizeof(line), commands) != NULL){
+        
+        send(client_fd, line, strlen(line), 0);
+        read(client_fd, buffer, 100 - 1);
+        printf("%s", buffer);
+        
+    }
+    
+    free(buffer);
     close(client_fd);
+    fclose(commands);
     return 0;
 }
