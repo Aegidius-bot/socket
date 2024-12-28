@@ -7,13 +7,15 @@
 #include<arpa/inet.h>
 #define SOCKET_PATH "/tmp/mysocket"
 
-int main(int argc, char** argv){
+int main(){
     int client_fd, status;
     struct sockaddr_un serv_addr;
     char hello[] = "Hello from client\n";
     char* buffer = (char*)malloc(sizeof(char)*100);
     char line[100];
     FILE* commands;
+
+    sleep(1);
 
     if((client_fd = socket(AF_LOCAL, SOCK_STREAM, 0)) < 0){
         perror("socket");
@@ -29,9 +31,7 @@ int main(int argc, char** argv){
         exit(1);
     }
 
-    commands = fopen(argv[1], "r");
-
-   while(fgets(line, sizeof(line), commands) != NULL){
+   while(fgets(line, sizeof(line), stdin) != NULL){
         
         send(client_fd, line, strlen(line), 0);
         read(client_fd, buffer, 100 - 1);
@@ -43,6 +43,6 @@ int main(int argc, char** argv){
     
     free(buffer);
     close(client_fd);
-    fclose(commands);
+    
     return 0;
 }
