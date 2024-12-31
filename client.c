@@ -15,6 +15,7 @@ int main(){
     char line[100];
     FILE* commands;
 
+    //add 1 sec delay keeping from connection error
     sleep(1);
 
     if((client_fd = socket(AF_LOCAL, SOCK_STREAM, 0)) < 0){
@@ -36,7 +37,7 @@ int main(){
         send(client_fd, line, strlen(line), 0);
         read(client_fd, buffer, 100 - 1);
 
-        if(strcmp("kill", strtok(line, " ")) == 0)break;
+        if(strcmp("kill\n", line) == 0)break;
         printf("%s", buffer);
         
     }

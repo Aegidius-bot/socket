@@ -61,11 +61,11 @@ int main(){
 		arg1 = strtok(NULL, " ");
 		arg2 = strtok(NULL," ");
 		
+		
 
-		if(strcmp(tok,"kill") == 0){
-			sprintf(ans, "%s", "\0");
-			send(new_socket, ans, strlen(ans), 0);
+		if(strcmp(tok,"kill\n") == 0){
 			break;
+			
 		}else if(strcmp(tok,"add") == 0){
 			sprintf(ans, "%d\n", atoi(arg1) + atoi(arg2));
 			send(new_socket, ans, strlen(ans), 0);
@@ -83,6 +83,7 @@ int main(){
 		}else{
 			send(new_socket, hello, strlen(hello), 0);
 		}
+		//Clear memory for the next query
 		memset(tok, 0, 50);
 		memset(ans, 0, 50);
 	}
